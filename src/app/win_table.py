@@ -1,30 +1,34 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-import csv
-from pathlib import Path
+import random
+from datetime import date, timedelta
 
 def open_win_table(parent: tk.Tk):
     win = tk.Toplevel(parent)
     win.title("Tabla (Treeview)")
     win.geometry("800x500")
-    frm = ttk.Frame(win, padding=12)
-    frm.pack(fill="both", expand=True)
+    boton_cerrar = ttk.Button(win, text="Cerrar", command=win.destroy)
+    boton_cerrar.pack(side="bottom", pay=10)
 
-    cols = ("Fecha", "Medicamento", "Dosis", "Estado")
-    tv = ttk.Treeview(frm, columns=cols, show="headings", height=10)
-    for c in cols:
-        tv.heading(c, text=c.capitalize())
-        tv.column(c, width=5, anchor="center")
-    tv.pack(fill="both", expand=True)
+    columnas = ("Fecha", "Medicamento", "Dosis", "Estado")
+    tv = ttk.Treeview(win, columns=columnas, show="headings")
+    for col in columnas:
+      tv.heading(col, text=col)
+      tv.column(col, width=150, anchor="center")
 
-    ruta = Path(__file__).resolve().parents[2] / "data" / "sample.csv"  # <repo>/data/sample.csv
-    if not ruta.exists():
-        messagebox.showwarning("Aviso", f"No se encontró {ruta}. Crea el archivo de ejemplo.")
-        return
+    # Generate sample data for demonstration
+    medicamentos = ["Paracetamol", "Ibuprofeno", "Amoxicilina", "Metformina"]
+    dosis_opciones = ["500mg", "1 g", "250mg", "2 g", "5 mg"]
+    estados = ["Tomado", "Pendiente", "No tomado"]
+    for _ in range(10):
+        dias_atras = random.randint(0, 7)
+        Fecha_aleatoria = (date.now() - timedelta(days=dias_atras)).strftime("%Y-%m-%d")
 
-    with open(ruta, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            tv.insert("", "end", values=(row["Fecha"], row["Medicamento"], row["Dosis"], row["Estado"]))
+        med = random.choice(medicamentos)
+        dosis = random.choice(dosis_opciones)
+        estado = random.choice(estados)
 
-    ttk.Button(frm, text="Cerrar", command=win.destroy).pack(pady=8, anchor="e")
+        tv.insert("", "end", values=(Fecha_aleatoria, med, dosis, estado))
+
+    btn_cerrar = ttk.Button(win, text="Cerrar", command=win.destroy)
+    btn_cerrar.pack(pady=5)
