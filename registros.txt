@@ -1,0 +1,16 @@
+Nombre: nat
+Edad: 24
+Fecha: 45
+Medicamento: Aspirina
+Dosis: 34
+Horario: 16:00
+Recordatorio: Sí
+------------------------------
+Nombre: Nata
+Edad: 24
+Fecha: 12
+Medicamento: Losartán
+Dosis: 23
+Horario: 12:00
+Recordatorio: Sí
+------------------------------

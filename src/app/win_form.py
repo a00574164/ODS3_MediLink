@@ -1,110 +1,46 @@
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
-
-AZUL = "#2F6FE0"
-FONDO = "#E8F0FD"
-LATERAL = "#D3E2FA"
-BLANCO = "#FFFFFF"
+from tkinter import ttk, messagebox
 
 
 def open_win_form(parent: tk.Tk):
-    # Ventana
     win = tk.Toplevel(parent)
-    win.title("MediLink - Registrar información médica")
-    win.geometry("1100x650")
-    win.configure(bg=FONDO)
+    win.title("Registro información médica")
+    win.geometry("900x620")
+    win.resizable(False, False)
 
-    # Estilos
-    style = ttk.Style(win)
-    style.theme_use("clam")
-    style.configure("TFrame", background=FONDO)
-    style.configure("Lateral.TFrame", background=LATERAL)
-    style.configure("Card.TLabelframe", background=BLANCO)
-    style.configure("Card.TLabelframe.Label", background=BLANCO,
-                    font=("Verdana", 14, "bold"))
-    style.configure("TLabel", background=BLANCO, font=("Verdana", 11))
-    style.configure("Titulo.TLabel", background=FONDO, font=("Verdana", 22, "bold"))
-    style.configure("Sub.TLabel", background=FONDO, font=("Verdana", 11))
-    style.configure("Menu.TButton", font=("Verdana", 11), anchor="w", padding=10)
-    style.configure("Guardar.TButton", font=("Verdana", 11, "bold"),
-                    background=AZUL, foreground="white", padding=10)
-    style.map("Guardar.TButton", background=[("active", "#1F55B8")])
-    style.configure("Limpiar.TButton", font=("Verdana", 11), padding=10)
+    fondo = "#EAF1FC"
+    blanco = "#FFFFFF"
+    azul = "#2F6FE0"
+    borde = "#C9D6EE"
+    texto = "#1B2A4A"
+    campo = "#F5F8FE"
 
-    # Barra lateral
-    lateral = ttk.Frame(win, style="Lateral.TFrame", width=220)
-    lateral.pack(side="left", fill="y")
-    lateral.pack_propagate(False)
+    cv = tk.Canvas(win, width=900, height=620, bg=fondo, highlightthickness=0)
+    cv.pack()
 
-    tk.Label(lateral, text="MediLink", bg=LATERAL, fg=AZUL,
-             font=("Verdana", 20, "bold")).pack(pady=(30, 0))
-    tk.Label(lateral, text="Tu salud, conectada", bg=LATERAL,
-             font=("Verdana", 9)).pack(pady=(0, 25))
+    def figura(x1, y1, x2, y2, r, color, etiqueta):
+        cv.create_oval(x1, y1, x1 + 2*r, y1 + 2*r, fill=color, outline=color, tags=etiqueta)
+        cv.create_oval(x2 - 2*r, y1, x2, y1 + 2*r, fill=color, outline=color, tags=etiqueta)
+        cv.create_oval(x1, y2 - 2*r, x1 + 2*r, y2, fill=color, outline=color, tags=etiqueta)
+        cv.create_oval(x2 - 2*r, y2 - 2*r, x2, y2, fill=color, outline=color, tags=etiqueta)
+        cv.create_rectangle(x1 + r, y1, x2 - r, y2, fill=color, outline=color, tags=etiqueta)
+        cv.create_rectangle(x1, y1 + r, x2, y2 - r, fill=color, outline=color, tags=etiqueta)
 
-    for texto in ["Inicio", "Registrar información", "Mis medicamentos",
-                  "Historial médico", "Mi progreso", "Configuración"]:
-        ttk.Button(lateral, text=texto, style="Menu.TButton").pack(
-            fill="x", padx=12, pady=3)
+    def redondo(x1, y1, x2, y2, r, relleno, contorno, etiqueta=""):
+        figura(x1, y1, x2, y2, r, contorno, etiqueta)
+        figura(x1 + 2, y1 + 2, x2 - 2, y2 - 2, r, relleno, etiqueta)
 
-    # Contenido
-    frm = ttk.Frame(win, padding=20)
-    frm.pack(side="left", fill="both", expand=True)
+    def boton(x1, y1, x2, y2, txt, relleno, color_txt, comando, etiqueta):
+        redondo(x1, y1, x2, y2, 18, relleno, azul, etiqueta)
+        cv.create_text((x1 + x2) // 2, (y1 + y2) // 2, text=txt, fill=color_txt, font=("Verdana", 11, "bold"), tags=etiqueta)
+        cv.tag_bind(etiqueta, "<Button-1>", lambda e: comando())
+        cv.tag_bind(etiqueta, "<Enter>", lambda e: cv.config(cursor="hand2"))
+        cv.tag_bind(etiqueta, "<Leave>", lambda e: cv.config(cursor=""))
 
-    ttk.Label(frm, text="Registrar información médica",
-              style="Titulo.TLabel").pack(anchor="w")
-    ttk.Label(frm, text="Mantén un registro de tu tratamiento y cómo te sientes",
-              style="Sub.TLabel").pack(anchor="w", pady=(0, 15))
+    def regresar():
+        win.destroy()
+        parent.deiconify()
 
-    # Datos del paciente
-    boxPaciente = ttk.LabelFrame(frm, text="Información del paciente",
-                                 style="Card.TLabelframe", padding=15)
-    boxPaciente.pack(fill="x", pady=(0, 15))
-
-    lblNombre = ttk.Label(boxPaciente, text="Nombre:")
-    lblNombre.grid(row=0, column=0, sticky="w")
-    entNombre = ttk.Entry(boxPaciente, width=30, font=("Verdana", 11))
-    entNombre.grid(row=1, column=0, padx=(0, 20), pady=5)
-
-    lblEdad = ttk.Label(boxPaciente, text="Edad:")
-    lblEdad.grid(row=0, column=1, sticky="w")
-    entEdad = ttk.Entry(boxPaciente, width=8, font=("Verdana", 11))
-    entEdad.grid(row=1, column=1, padx=(0, 20), pady=5)
-
-    lblFecha = ttk.Label(boxPaciente, text="Fecha de registro:")
-    lblFecha.grid(row=0, column=2, sticky="w")
-    entFecha = ttk.Entry(boxPaciente, width=14, font=("Verdana", 11))
-    entFecha.grid(row=1, column=2, pady=5)
-    entFecha.insert(0, "dd/mm/aaaa")
-
-    # Medicamentos
-    boxMed = ttk.LabelFrame(frm, text="Medicamentos",
-                            style="Card.TLabelframe", padding=15)
-    boxMed.pack(fill="x")
-
-    lblMed = ttk.Label(boxMed, text="Medicamento:")
-    lblMed.grid(row=0, column=0, sticky="w")
-    cmbMedicamento = ttk.Combobox(
-        boxMed, values=["Metformina", "Losartán", "Aspirina", "Omeprazol"],
-        font=("Verdana", 11), width=22)
-    cmbMedicamento.grid(row=1, column=0, padx=(0, 20), pady=5)
-
-    lblDosis = ttk.Label(boxMed, text="Dosis:")
-    lblDosis.grid(row=0, column=1, sticky="w")
-    entDosis = ttk.Entry(boxMed, width=12, font=("Verdana", 11))
-    entDosis.grid(row=1, column=1, padx=(0, 20), pady=5)
-
-    lblHora = ttk.Label(boxMed, text="Horario:")
-    lblHora.grid(row=0, column=2, sticky="w")
-    cmbHora = ttk.Combobox(boxMed, values=["08:00", "12:00", "16:00", "20:00"],
-                           font=("Verdana", 11), width=10)
-    cmbHora.grid(row=1, column=2, padx=(0, 20), pady=5)
-
-    varRecordatorio = tk.BooleanVar(value=True)
-    chkRecordatorio = ttk.Checkbutton(boxMed, text="Activar recordatorio",
-                                      variable=varRecordatorio)
-    chkRecordatorio.grid(row=1, column=3)
-
-    # Funciones
     def limpiar():
         entNombre.delete(0, "end")
         entEdad.delete(0, "end")
@@ -112,7 +48,7 @@ def open_win_form(parent: tk.Tk):
         entDosis.delete(0, "end")
         cmbMedicamento.set("")
         cmbHora.set("")
-        varRecordatorio.set(True)
+        varRecordatorio.set(1)
 
     def validar_y_guardar():
         nombre = entNombre.get().strip()
@@ -123,28 +59,65 @@ def open_win_form(parent: tk.Tk):
         if not edad_txt.isdigit():
             messagebox.showerror("Error", "La edad debe ser un número entero.")
             return
-        ruta = filedialog.asksaveasfilename(defaultextension=".txt",
-                                            filetypes=[("Texto", "*.txt")])
-        if ruta:
-            with open(ruta, "w", encoding="utf-8") as f:
-                f.write(f"Nombre: {nombre}\n")
-                f.write(f"Edad: {edad_txt}\n")
-                f.write(f"Fecha: {entFecha.get()}\n")
-                f.write(f"Medicamento: {cmbMedicamento.get()}\n")
-                f.write(f"Dosis: {entDosis.get()}\n")
-                f.write(f"Horario: {cmbHora.get()}\n")
-                f.write(f"Recordatorio: {'Sí' if varRecordatorio.get() else 'No'}\n")
-            messagebox.showinfo("OK", "Datos guardados.")
+        with open("registros.txt", "a", encoding="utf-8") as f:
+            f.write(f"Nombre: {nombre}\n")
+            f.write(f"Edad: {edad_txt}\n")
+            f.write(f"Fecha: {entFecha.get()}\n")
+            f.write(f"Medicamento: {cmbMedicamento.get()}\n")
+            f.write(f"Dosis: {entDosis.get()}\n")
+            f.write(f"Horario: {cmbHora.get()}\n")
+            f.write(f"Recordatorio: {'Sí' if varRecordatorio.get() else 'No'}\n")
+            f.write("-" * 30 + "\n")
+        messagebox.showinfo("OK", "Datos guardados.")
+        limpiar()
 
-    # Botones
-    botones = ttk.Frame(frm)
-    botones.pack(side="bottom", anchor="e", pady=10)
-    btnLimpiar = ttk.Button(botones, text="Limpiar", style="Limpiar.TButton",
-                            command=limpiar)
-    btnLimpiar.pack(side="left", padx=5)
-    btnGuardar = ttk.Button(botones, text="Guardar registro",
-                            style="Guardar.TButton", command=validar_y_guardar)
-    btnGuardar.pack(side="left", padx=5)
+    boton(30, 20, 160, 58, "← Regresar", blanco, azul, regresar, "btnRegresar")
+
+    cv.create_text(30, 85, text="Registro de información médica", anchor="nw", fill=texto, font=("Verdana", 20, "bold"))
+    cv.create_text(30, 125, text="Mantén un registro de tu tratamiento y cómo te sientes", anchor="nw", fill="#8A96AE", font=("Verdana", 10))
+
+    redondo(30, 165, 870, 305, 18, blanco, borde)
+    cv.create_text(50, 180, text="Información del paciente", anchor="nw", fill=texto, font=("Verdana", 13, "bold"))
+
+    lblNombre = tk.Label(cv, text="Nombre:", bg=blanco, fg=texto, font=("Verdana", 10, "bold"))
+    lblNombre.place(x=50, y=222)
+    entNombre = tk.Entry(cv, font=("Verdana", 11), bg=campo, relief="flat", highlightthickness=1, highlightbackground=borde, highlightcolor=azul)
+    entNombre.place(x=50, y=248, width=330, height=32)
+
+    lblEdad = tk.Label(cv, text="Edad:", bg=blanco, fg=texto, font=("Verdana", 10, "bold"))
+    lblEdad.place(x=410, y=222)
+    entEdad = tk.Entry(cv, font=("Verdana", 11), bg=campo, relief="flat", highlightthickness=1, highlightbackground=borde, highlightcolor=azul)
+    entEdad.place(x=410, y=248, width=100, height=32)
+
+    lblFecha = tk.Label(cv, text="Fecha de registro:", bg=blanco, fg=texto, font=("Verdana", 10, "bold"))
+    lblFecha.place(x=540, y=222)
+    entFecha = tk.Entry(cv, font=("Verdana", 11), bg=campo, relief="flat", highlightthickness=1, highlightbackground=borde, highlightcolor=azul)
+    entFecha.place(x=540, y=248, width=170, height=32)
+
+    redondo(30, 325, 870, 475, 18, blanco, borde)
+    cv.create_text(50, 340, text="Medicamentos", anchor="nw", fill=texto, font=("Verdana", 13, "bold"))
+
+    lblMedicamento = tk.Label(cv, text="Medicamento:", bg=blanco, fg=texto, font=("Verdana", 10, "bold"))
+    lblMedicamento.place(x=50, y=382)
+    cmbMedicamento = ttk.Combobox(cv, values=["Metformina", "Losartán", "Aspirina", "Omeprazol"], font=("Verdana", 11))
+    cmbMedicamento.place(x=50, y=408, width=240, height=32)
+
+    lblDosis = tk.Label(cv, text="Dosis:", bg=blanco, fg=texto, font=("Verdana", 10, "bold"))
+    lblDosis.place(x=320, y=382)
+    entDosis = tk.Entry(cv, font=("Verdana", 11), bg=campo, relief="flat", highlightthickness=1, highlightbackground=borde, highlightcolor=azul)
+    entDosis.place(x=320, y=408, width=140, height=32)
+
+    lblHora = tk.Label(cv, text="Horario:", bg=blanco, fg=texto, font=("Verdana", 10, "bold"))
+    lblHora.place(x=490, y=382)
+    cmbHora = ttk.Combobox(cv, values=["08:00", "12:00", "16:00", "20:00"], font=("Verdana", 11))
+    cmbHora.place(x=490, y=408, width=130, height=32)
+
+    varRecordatorio = tk.IntVar(value=1)
+    chkRecordatorio = tk.Checkbutton(cv, text="Activar recordatorio", variable=varRecordatorio, bg=blanco, fg=texto, activebackground=blanco, font=("Verdana", 10))
+    chkRecordatorio.place(x=660, y=410)
+
+    boton(540, 520, 700, 565, "Limpiar", blanco, azul, limpiar, "btnLimpiar")
+    boton(710, 520, 870, 565, "Guardar", azul, "white", validar_y_guardar, "btnGuardar")
 
     return win
 
