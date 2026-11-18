@@ -10,16 +10,14 @@ import time
 import tkinter as tk
 from tkinter import ttk
 
-# ---------------------------------------------------------------------------
-# Estilo
-# ---------------------------------------------------------------------------
+
 C = {
-    "fondo": "#EAF4FB",      # azul muy claro (fondo de la ventana)
-    "tarjeta": "#FFFFFF",    # blanco (tarjetas)
+    "fondo": "#EAF4FB",      
+    "tarjeta": "#FFFFFF",    
     "borde": "#D3E4F2",
-    "marino": "#12355B",     # azul marino (encabezado, títulos)
-    "azul": "#2E86C1",       # azul principal (líneas y barras)
-    "azul_claro": "#D6EAF8", # relleno de áreas
+    "marino": "#12355B",    
+    "azul": "#2E86C1",       
+    "azul_claro": "#D6EAF8", 
     "verde": "#27AE60",
     "ambar": "#F39C12",
     "rojo": "#E74C3C",
@@ -29,11 +27,7 @@ C = {
 }
 FUENTE = "Segoe UI"
 
-# ---------------------------------------------------------------------------
-# Datos ficticios (para conectar datos reales, sustituye DATOS por tu fuente)
-#   medicamentos: (nombre, detalle, dosis tomadas, dosis programadas)
-#   sintomas:     (nombre, veces reportado en el mes)
-# ---------------------------------------------------------------------------
+
 MESES = ["Junio 2026", "Julio 2026", "Agosto 2026",
          "Septiembre 2026", "Octubre 2026", "Noviembre 2026"]
 
@@ -89,9 +83,7 @@ DATOS = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Utilidades
-# ---------------------------------------------------------------------------
+
 def _tam(cv):
     """Tamaño real del canvas (usa el tamaño pedido si aún no se dibuja)."""
     w, h = cv.winfo_width(), cv.winfo_height()
@@ -133,9 +125,7 @@ def _crear_tarjeta(padre, titulo, subtitulo, fila, columna):
     return cv
 
 
-# ---------------------------------------------------------------------------
-# Dibujo de cada gráfica
-# ---------------------------------------------------------------------------
+
 def dibujar_evolucion(cv, sel):
     """Línea de bienestar por mes; resalta el mes seleccionado."""
     cv.delete("all")
@@ -145,7 +135,7 @@ def dibujar_evolucion(cv, sel):
     if ancho < 60 or alto < 50:
         return
 
-    # Rejilla y eje Y (0-100)
+    
     for v in range(0, 101, 20):
         y = arr + alto - alto * v / 100
         cv.create_line(izq, y, w - der, y, fill=C["rejilla"])
@@ -156,19 +146,19 @@ def dibujar_evolucion(cv, sel):
     cv.create_line(izq, arr + alto, w - der, arr + alto, fill=C["gris"])
     cv.create_line(izq, arr, izq, arr + alto, fill=C["gris"])
 
-    # Puntos de la serie
+    
     valores = [DATOS[m]["bienestar"] for m in MESES]
     n = len(valores)
     pts = [(izq + ancho * i / (n - 1), arr + alto - alto * v / 100)
            for i, v in enumerate(valores)]
 
-    # Área bajo la curva + línea
+    
     base = arr + alto
     poly = [pts[0][0], base] + [k for p in pts for k in p] + [pts[-1][0], base]
     cv.create_polygon(poly, fill=C["azul_claro"], outline="")
     cv.create_line([k for p in pts for k in p], fill=C["azul"], width=3)
 
-    # Marcadores, valores y etiquetas del eje X
+    
     for i, ((x, y), v) in enumerate(zip(pts, valores)):
         activo = (i == sel)
         r = 7 if activo else 4
@@ -189,18 +179,18 @@ def dibujar_medicamentos(cv, meds):
     w, h = _tam(cv)
     fila = h / len(meds)
     pad = 6
-    x1, x2 = pad, w - pad - 52          # extremos de la barra
+    x1, x2 = pad, w - pad - 52         
     for i, (nombre, detalle, tomadas, prog) in enumerate(meds):
         y0 = i * fila
         pct = round(100 * tomadas / prog)
         color = _color_cumplimiento(pct)
-        yb = y0 + fila * 0.55           # altura de la barra
+        yb = y0 + fila * 0.55           
 
         cv.create_text(pad, y0 + fila * 0.2, text=nombre, anchor="w",
                        fill=C["marino"], font=(FUENTE, 10, "bold"))
         cv.create_text(w - pad, y0 + fila * 0.2, text=detalle, anchor="e",
                        fill=C["gris"], font=(FUENTE, 8))
-        # Pista y relleno con extremos redondeados
+        
         cv.create_line(x1, yb, x2, yb, width=12, capstyle="round",
                        fill=C["rejilla"])
         fin = x1 + (x2 - x1) * pct / 100
@@ -223,9 +213,9 @@ def dibujar_sintomas(cv, sintomas):
         return
 
     datos = sorted(sintomas, key=lambda s: s[1], reverse=True)
-    tope = ((max(v for _, v in datos) // 4) + 1) * 4   # máximo "redondo"
+    tope = ((max(v for _, v in datos) // 4) + 1) * 4  
 
-    # Rejilla y eje Y (4 divisiones)
+    
     for k in range(5):
         v = tope * k / 4
         y = arr + alto - alto * v / tope
@@ -235,13 +225,13 @@ def dibujar_sintomas(cv, sintomas):
     base = arr + alto
     cv.create_line(izq, base, w - der, base, fill=C["gris"])
 
-    # Barras con cantidad arriba y etiqueta abajo
+    
     ranura = ancho / len(datos)
     ancho_barra = min(52, ranura * 0.55)
     for i, (nombre, v) in enumerate(datos):
         cx = izq + ranura * (i + 0.5)
         y = base - alto * v / tope
-        color = C["azul"] if i else C["marino"]          # el más frecuente en marino
+        color = C["azul"] if i else C["marino"]         
         cv.create_rectangle(cx - ancho_barra / 2, y, cx + ancho_barra / 2,
                             base, fill=color, outline="")
         cv.create_text(cx, y - 9, text=str(v), fill=C["marino"],
@@ -260,7 +250,7 @@ def dibujar_resumen(cv, idx):
     pct = _cumplimiento_global(d["medicamentos"])
     color = _color_cumplimiento(pct)
 
-    # Indicador circular (arranca arriba y avanza en sentido horario)
+    
     r = max(min(h / 2 - 12, w * 0.22), 25)
     cx, cy = r + 16, h / 2
     cv.create_oval(cx - r, cy - r, cx + r, cy + r, outline=C["rejilla"], width=14)
@@ -273,7 +263,7 @@ def dibujar_resumen(cv, idx):
     cv.create_text(cx, cy + r * 0.32, text="cumplimiento", fill=C["gris"],
                    font=(FUENTE, 8))
 
-    # Datos clave
+    
     x = cx + r + 28
     bien = d["bienestar"]
     if idx > 0:
@@ -302,9 +292,7 @@ def dibujar_resumen(cv, idx):
                    font=(FUENTE, 11, "bold"))
 
 
-# ---------------------------------------------------------------------------
-# Ventana principal (punto de entrada que usa main.py)
-# ---------------------------------------------------------------------------
+
 def open_win_canvas(parent: tk.Tk):
     win = tk.Toplevel(parent)
     win.title("MediLink — Progreso del paciente")
@@ -312,7 +300,7 @@ def open_win_canvas(parent: tk.Tk):
     win.minsize(820, 560)
     win.configure(bg=C["fondo"])
 
-    # --- Encabezado azul marino -------------------------------------------
+    
     encabezado = tk.Frame(win, bg=C["marino"])
     encabezado.pack(fill="x")
     titulos = tk.Frame(encabezado, bg=C["marino"])
@@ -322,13 +310,13 @@ def open_win_canvas(parent: tk.Tk):
     tk.Label(titulos, text="Progreso del paciente · datos de demostración",
              bg=C["marino"], fg=C["azul_claro"], font=(FUENTE, 9)).pack(anchor="w")
 
-    # --- Barra de controles -----------------------------------------------
+    
     controles = tk.Frame(win, bg=C["fondo"])
     controles.pack(fill="x", padx=12, pady=(10, 0))
     tk.Label(controles, text="Mes:", bg=C["fondo"], fg=C["marino"],
              font=(FUENTE, 10, "bold")).pack(side="left", padx=(6, 4))
 
-    var_mes = tk.StringVar(value=MESES[-1])          # inicia en el mes más reciente
+    var_mes = tk.StringVar(value=MESES[-1])          
     combo = ttk.Combobox(controles, textvariable=var_mes, values=MESES,
                          state="readonly", width=18)
     combo.pack(side="left")
@@ -337,18 +325,18 @@ def open_win_canvas(parent: tk.Tk):
                        font=(FUENTE, 9))
     lbl_act.pack(side="left", padx=14)
 
-    # Botón Regresar (cierra esta ventana y vuelve a la principal)
+    
     tk.Button(controles, text="← Regresar", command=win.destroy,
               bg=C["azul"], fg="white", activebackground=C["marino"],
               activeforeground="white", relief="flat", padx=12, pady=4,
               font=(FUENTE, 10, "bold"), cursor="hand2").pack(side="right", padx=4)
-    # Botón Actualizar (vuelve a leer los datos y redibuja)
+    
     tk.Button(controles, text="⟳ Actualizar", command=lambda: actualizar(),
               bg=C["verde"], fg="white", activebackground="#1E8449",
               activeforeground="white", relief="flat", padx=12, pady=4,
               font=(FUENTE, 10, "bold"), cursor="hand2").pack(side="right", padx=4)
 
-    # --- Cuadrícula de tarjetas (2 x 2, se estira con la ventana) ---------
+    
     cuerpo = tk.Frame(win, bg=C["fondo"])
     cuerpo.pack(fill="both", expand=True, padx=6, pady=6)
     for i in range(2):
@@ -364,7 +352,7 @@ def open_win_canvas(parent: tk.Tk):
     cv_res = _crear_tarjeta(cuerpo, "Progreso mensual",
                             "Resumen del mes seleccionado", 1, 1)
 
-    # --- Redibujado -------------------------------------------------------
+    
     def redibujar(*_):
         """Dibuja las 4 tarjetas con el mes elegido en el selector."""
         if not win.winfo_exists():
@@ -377,20 +365,19 @@ def open_win_canvas(parent: tk.Tk):
         dibujar_resumen(cv_res, idx)
 
     def actualizar():
-        # Aquí se volverían a leer los datos reales (base de datos / archivo).
-        # Con datos ficticios solo se redibuja y se marca la hora.
+        
         redibujar()
         lbl_act.config(text="Actualizado: " + time.strftime("%H:%M:%S"))
 
     combo.bind("<<ComboboxSelected>>", redibujar)
-    # Adaptable: al cambiar el tamaño de cada canvas, se redibuja
+    
     for cv in (cv_evo, cv_med, cv_sin, cv_res):
         cv.bind("<Configure>", redibujar)
 
     actualizar()
 
 
-# Prueba independiente: python win_canvas.py
+
 if __name__ == "__main__":
     raiz = tk.Tk()
     raiz.title("Prueba win_canvas")
