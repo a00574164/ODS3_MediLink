@@ -8,7 +8,7 @@ def open_win_table(parent: tk.Tk):
     win.title("Tabla (Treeview)")
     win.geometry("800x500")
     boton_cerrar = ttk.Button(win, text="Cerrar", command=win.destroy)
-    boton_cerrar.pack(side="bottom", pay=10)
+    boton_cerrar.pack(side="bottom", pady=10)
 
     columnas = ("Fecha", "Medicamento", "Dosis", "Estado")
     tv = ttk.Treeview(win, columns=columnas, show="headings")
@@ -22,13 +22,12 @@ def open_win_table(parent: tk.Tk):
     estados = ["Tomado", "Pendiente", "No tomado"]
     for _ in range(10):
         dias_atras = random.randint(0, 7)
-        Fecha_aleatoria = (date.now() - timedelta(days=dias_atras)).strftime("%Y-%m-%d")
+        Fecha_aleatoria = (date.today() - timedelta(days=dias_atras)).strftime("%Y-%m-%d")
 
         med = random.choice(medicamentos)
         dosis = random.choice(dosis_opciones)
         estado = random.choice(estados)
 
         tv.insert("", "end", values=(Fecha_aleatoria, med, dosis, estado))
-
+    tv.pack(expand=True, fill="both", padx=20, pady=10)
     btn_cerrar = ttk.Button(win, text="Cerrar", command=win.destroy)
-    btn_cerrar.pack(pady=5)
