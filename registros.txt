@@ -14,3 +14,11 @@ Dosis: 23
 Horario: 12:00
 Recordatorio: Sí
 ------------------------------
+Nombre: jonathan
+Edad: 20
+Fecha: HOY
+Medicamento: Omeprazol
+Dosis: 200
+Horario: AYER
+Recordatorio: Sí
+------------------------------
