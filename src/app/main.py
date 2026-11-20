@@ -44,7 +44,7 @@ def crear_boton_redondeado(parent, width, height, radius, bg_color, hover_color,
 def main():
     root = tk.Tk()
     root.title("MediLink - Menú principal")
-    root.geometry("500x410")
+    root.geometry("500x480")
     root.resizable(False, False)
 
     COLOR_FONDO = "EEF4FA"
@@ -87,13 +87,21 @@ def main():
     alto_btn = 54
     radio = 16
 
+    btn_usuario = crear_boton_redondeado(
+        grid_frame, ancho_btn, alto_btn, radio,
+        f"#{COLOR_PRIMARIO}", f"#{COLOR_PRIMARIO_HOVER}",
+        "Usuario", "white", fuente_btn,
+        lambda: open_win_home(root)
+    )
+    btn_usuario.grid(row=0, column=0, padx=10, pady=8)
+
     btn_registro = crear_boton_redondeado(
         grid_frame, ancho_btn, alto_btn, radio,
         f"#{COLOR_PRIMARIO}", f"#{COLOR_PRIMARIO_HOVER}",
         "Registro médico", "white", fuente_btn,
         lambda: open_win_form(root)
     )
-    btn_registro.grid(row=0, column=0, padx=10, pady=8)
+    btn_registro.grid(row=0, column=1, padx=10, pady=8)
 
     btn_sintomas = crear_boton_redondeado(
         grid_frame, ancho_btn, alto_btn, radio,
@@ -101,7 +109,7 @@ def main():
         "Lista de síntomas", "white", fuente_btn,
         lambda: open_win_list(root)
     )
-    btn_sintomas.grid(row=0, column=1, padx=10, pady=8)
+    btn_sintomas.grid(row=1, column=0, padx=10, pady=8)
 
     btn_historial = crear_boton_redondeado(
         grid_frame, ancho_btn, alto_btn, radio,
@@ -109,7 +117,7 @@ def main():
         "Historial médico", "white", fuente_btn,
         lambda: open_win_table(root)
     )
-    btn_historial.grid(row=1, column=0, padx=10, pady=8)
+    btn_historial.grid(row=1, column=1, padx=10, pady=8)
 
     btn_graficas = crear_boton_redondeado(
         grid_frame, ancho_btn, alto_btn, radio,
@@ -117,7 +125,7 @@ def main():
         "Gráficas y reportes", "white", fuente_btn,
         lambda: open_win_canvas(root)
     )
-    btn_graficas.grid(row=1, column=1, padx=10, pady=8)
+    btn_graficas.grid(row=2, column=0, padx=10, pady=8)
 
     btn_salir = crear_boton_redondeado(
         main_frame, (ancho_btn * 2) + 20, 46, radio,
